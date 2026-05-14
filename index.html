@@ -142,8 +142,8 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .nb:hover:not(.sold){background:rgba(245,200,66,.15);border-color:var(--gold);color:var(--gold);transform:scale(1.08) translateY(-2px);box-shadow:0 6px 20px rgba(245,200,66,.3)}
 .nb:active:not(.sold){transform:scale(.95)}
 .nb.sel{background:linear-gradient(135deg,rgba(245,200,66,.25),rgba(255,159,10,.2));border-color:var(--gold);color:var(--gold);font-weight:800;box-shadow:0 4px 20px rgba(245,200,66,.35),inset 0 1px 0 rgba(255,255,255,.15);transform:scale(1.05)}
-.nb.sold{background:rgba(255,69,58,.08);border-color:rgba(255,69,58,.25);color:rgba(255,69,58,.5);cursor:not-allowed;font-size:.65rem}
-.nb.sold::after{content:'✕';position:absolute;font-size:.5rem;bottom:3px;right:4px;opacity:.4}
+.nb.sold{background:rgba(255,69,58,.35);border-color:rgba(255,69,58,1);color:#fff;cursor:not-allowed;font-size:.65rem;font-weight:700;box-shadow:0 0 12px rgba(255,69,58,.5)}
+.nb.sold::after{content:'VENDIDO';position:absolute;font-size:.38rem;bottom:2px;right:0;left:0;text-align:center;opacity:.9;color:rgba(255,180,180,1);letter-spacing:.5px}
 
 /* Float bar */
 #fbar{position:fixed;bottom:0;left:0;right:0;z-index:300;background:rgba(5,5,10,.92);backdrop-filter:blur(24px) saturate(180%);border-top:1px solid rgba(255,255,255,.1);padding:14px 16px 18px;transform:translateY(100%);transition:transform .4s cubic-bezier(.34,1.56,.64,1)}
@@ -302,7 +302,7 @@ footer strong{color:rgba(255,255,255,.6)}
       <div class="legend">
         <div class="leg"><div class="leg-dot" style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2)"></div>Disponible</div>
         <div class="leg"><div class="leg-dot" style="background:rgba(245,200,66,.25);border:1px solid var(--gold)"></div>Seleccionado</div>
-        <div class="leg"><div class="leg-dot" style="background:rgba(255,69,58,.12);border:1px solid rgba(255,69,58,.3)"></div>Vendido</div>
+        <div class="leg"><div class="leg-dot" style="background:rgba(255,69,58,.35);border:1px solid rgba(255,69,58,1)"></div>Vendido</div>
       </div>
     </div>
     <div class="numbers-grid" id="ngrid"></div>
