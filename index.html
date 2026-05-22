@@ -399,13 +399,17 @@ const TOTAL=150,PRICE=10000,PASS='marion2025',WA='56964189290';
 let sel=new Set(),sold=new Map();
 
 const save=()=>localStorage.setItem('rifa_v2',JSON.stringify([...sold]));
-const load=()=>{try{const d=localStorage.getItem('rifa_v2');if(d)sold=new Map(JSON.parse(d))}catch(e){}};
+const load=()=>{try{const d=localStorage.getItem('rifa_v2');if(d)sold=new Map(JSON.parse(d).map(([k,v])=>[parseInt(k),v]))}catch(e){}};
 
 function render(){
   const g=document.getElementById('ngrid');g.innerHTML='';
   for(let i=1;i<=TOTAL;i++){
     const b=document.createElement('button');b.className='nb';b.textContent=i;
-    if(sold.has(i)){b.classList.add('sold');b.title=`Vendido: ${sold.get(i).name}`}
+    if(sold.has(i)){
+      b.classList.add('sold');
+      b.title=`Vendido: ${sold.get(i).name}`;
+      b.style.cssText='background:#ff453a!important;border-color:#ff453a!important;color:#fff!important;opacity:1!important';
+    }
     else if(sel.has(i)){b.classList.add('sel')}
     b.addEventListener('click',()=>toggle(i));g.appendChild(b);
   }
@@ -515,7 +519,7 @@ function doRegister(){
   const err=document.getElementById('regErr');
   if(!n||!name||!ref){err.style.display='block';return}
   err.style.display='none';
-  sold.set(n,{name,ref});sel.delete(n);save();render();
+  sold.set(parseInt(n),{name,ref});sel.delete(parseInt(n));save();render();
   document.getElementById('regN').value='';document.getElementById('regName').value='';document.getElementById('regRef').value='';
   showTab('sales');
 }
