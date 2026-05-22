@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -142,8 +142,8 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .nb:hover:not(.sold){background:rgba(245,200,66,.15);border-color:var(--gold);color:var(--gold);transform:scale(1.08) translateY(-2px);box-shadow:0 6px 20px rgba(245,200,66,.3)}
 .nb:active:not(.sold){transform:scale(.95)}
 .nb.sel{background:linear-gradient(135deg,rgba(245,200,66,.25),rgba(255,159,10,.2));border-color:var(--gold);color:var(--gold);font-weight:800;box-shadow:0 4px 20px rgba(245,200,66,.35),inset 0 1px 0 rgba(255,255,255,.15);transform:scale(1.05)}
-.nb.sold{background:rgba(255,69,58,.08);border-color:rgba(255,69,58,.25);color:rgba(255,69,58,.5);cursor:not-allowed;font-size:.65rem}
-.nb.sold::after{content:'✕';position:absolute;font-size:.5rem;bottom:3px;right:4px;opacity:.4}
+.nb.sold{background:rgba(255,69,58,.35);border-color:rgba(255,69,58,1);color:#fff;cursor:not-allowed;font-size:.65rem;font-weight:700;box-shadow:0 0 12px rgba(255,69,58,.5)}
+.nb.sold::after{content:'VENDIDO';position:absolute;font-size:.38rem;bottom:2px;right:0;left:0;text-align:center;opacity:.9;color:rgba(255,180,180,1);letter-spacing:.5px}
 
 /* Float bar */
 #fbar{position:fixed;bottom:0;left:0;right:0;z-index:300;background:rgba(5,5,10,.92);backdrop-filter:blur(24px) saturate(180%);border-top:1px solid rgba(255,255,255,.1);padding:14px 16px 18px;transform:translateY(100%);transition:transform .4s cubic-bezier(.34,1.56,.64,1)}
@@ -302,7 +302,7 @@ footer strong{color:rgba(255,255,255,.6)}
       <div class="legend">
         <div class="leg"><div class="leg-dot" style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2)"></div>Disponible</div>
         <div class="leg"><div class="leg-dot" style="background:rgba(245,200,66,.25);border:1px solid var(--gold)"></div>Seleccionado</div>
-        <div class="leg"><div class="leg-dot" style="background:rgba(255,69,58,.12);border:1px solid rgba(255,69,58,.3)"></div>Vendido</div>
+        <div class="leg"><div class="leg-dot" style="background:rgba(255,69,58,.35);border:1px solid rgba(255,69,58,1)"></div>Vendido</div>
       </div>
     </div>
     <div class="numbers-grid" id="ngrid"></div>
@@ -330,6 +330,7 @@ footer strong{color:rgba(255,255,255,.6)}
           <button class="tab-btn" id="tSales" onclick="showTab('sales')">Ver ventas</button>
         </div>
         <div id="vReg">
+          <div class="fi"><label class="fl">🔑 Token GitHub (solo admin)</label><input class="finput" type="password" id="ghTok" placeholder="ghp_xxxxxxxxxxxx" oninput="ghToken=this.value"></div>
           <div class="fi"><label class="fl">Número</label><select class="fsel" id="regN"><option value="">-- Selecciona número --</option></select></div>
           <div class="fi"><label class="fl">Nombre comprador</label><input class="finput" type="text" id="regName" placeholder="Ej: Juan Pérez"></div>
           <div class="fi"><label class="fl">Referencia pago</label><input class="finput" type="text" id="regRef" placeholder="N° comprobante / comentario"></div>
@@ -396,16 +397,48 @@ footer strong{color:rgba(255,255,255,.6)}
 
 <script>
 const TOTAL=150,PRICE=10000,PASS='marion2025',WA='56964189290';
-let sel=new Set(),sold=new Map();
+const REPO='marionmilissenmendoza-art/rifa-marion';
+const VFILE='vendidos.json';
+let sel=new Set(),sold=new Map(),ghToken='',fileSHA='';
 
-const save=()=>localStorage.setItem('rifa_v2',JSON.stringify([...sold]));
-const load=()=>{try{const d=localStorage.getItem('rifa_v2');if(d)sold=new Map(JSON.parse(d))}catch(e){}};
+async function loadFromGH(){
+  try{
+    const r=await fetch(`https://api.github.com/repos/${REPO}/contents/${VFILE}?t=${Date.now()}`);
+    if(r.ok){
+      const d=await r.json();
+      fileSHA=d.sha;
+      const data=JSON.parse(atob(d.content.replace(/\n/g,'')));
+      sold=new Map(Object.entries(data).map(([k,v])=>[parseInt(k),v]));
+    }
+  }catch(e){}
+  render();
+}
+
+async function saveToGH(){
+  if(!ghToken){alert('Falta el token GitHub en el panel admin');return false;}
+  const obj={};sold.forEach((v,k)=>obj[k]=v);
+  const content=btoa(unescape(encodeURIComponent(JSON.stringify(obj))));
+  const body={message:'update vendidos',content,committer:{name:'Admin',email:'admin@rifa.cl'}};
+  if(fileSHA)body.sha=fileSHA;
+  const r=await fetch(`https://api.github.com/repos/${REPO}/contents/${VFILE}`,{
+    method:'PUT',headers:{'Content-Type':'application/json',Authorization:`token ${ghToken}`},
+    body:JSON.stringify(body)
+  });
+  if(r.ok){const d=await r.json();fileSHA=d.content.sha;return true;}
+  else{const e=await r.json();alert('Error: '+e.message);return false;}
+}
+
+setInterval(loadFromGH,15000);
 
 function render(){
   const g=document.getElementById('ngrid');g.innerHTML='';
   for(let i=1;i<=TOTAL;i++){
     const b=document.createElement('button');b.className='nb';b.textContent=i;
-    if(sold.has(i)){b.classList.add('sold');b.title=`Vendido: ${sold.get(i).name}`}
+    if(sold.has(i)){
+      b.classList.add('sold');
+      b.title=`Vendido: ${sold.get(i).name}`;
+      b.style.cssText='background:#ff453a!important;border-color:#ff453a!important;color:#fff!important;opacity:1!important';
+    }
     else if(sel.has(i)){b.classList.add('sel')}
     b.addEventListener('click',()=>toggle(i));g.appendChild(b);
   }
@@ -508,16 +541,18 @@ function fillSelect(){
     if(!sold.has(i)){const o=document.createElement('option');o.value=i;o.textContent=`Número ${i}`;if(String(i)===v)o.selected=true;s.appendChild(o);}
   }
 }
-function doRegister(){
+async function doRegister(){
   const n=parseInt(document.getElementById('regN').value);
   const name=document.getElementById('regName').value.trim();
   const ref=document.getElementById('regRef').value.trim();
   const err=document.getElementById('regErr');
   if(!n||!name||!ref){err.style.display='block';return}
   err.style.display='none';
-  sold.set(n,{name,ref});sel.delete(n);save();render();
-  document.getElementById('regN').value='';document.getElementById('regName').value='';document.getElementById('regRef').value='';
-  showTab('sales');
+  sold.set(parseInt(n),{name,ref});sel.delete(parseInt(n));
+  render();
+  const ok=await saveToGH();
+  if(ok){document.getElementById('regN').value='';document.getElementById('regName').value='';document.getElementById('regRef').value='';showTab('sales');}
+  else{sold.delete(parseInt(n));render();}
 }
 function renderSales(){
   const l=document.getElementById('salesList'),e=document.getElementById('noSales');
@@ -538,7 +573,7 @@ function renderSales(){
   }
 })();
 
-load();render();
+loadFromGH();
 </script>
 </body>
 </html>
