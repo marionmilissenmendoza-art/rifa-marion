@@ -330,6 +330,7 @@ footer strong{color:rgba(255,255,255,.6)}
           <button class="tab-btn" id="tSales" onclick="showTab('sales')">Ver ventas</button>
         </div>
         <div id="vReg">
+          <div class="fi"><label class="fl">🔑 Token GitHub</label><input class="finput" type="password" id="ghTok" placeholder="ghp_xxxxxxxxxxxx" oninput="ghToken=this.value"><small style="color:var(--muted);font-size:.65rem;margin-top:4px;display:block">Pégalo cada vez que abras el panel</small></div>
           <div class="fi"><label class="fl">Número</label><select class="fsel" id="regN"><option value="">-- Selecciona número --</option></select></div>
           <div class="fi"><label class="fl">Nombre comprador</label><input class="finput" type="text" id="regName" placeholder="Ej: Juan Pérez"></div>
           <div class="fi"><label class="fl">Referencia pago</label><input class="finput" type="text" id="regRef" placeholder="N° comprobante / comentario"></div>
@@ -398,7 +399,7 @@ footer strong{color:rgba(255,255,255,.6)}
 const TOTAL=150,PRICE=10000,PASS='marion2025',WA='56964189290';
 const REPO='marionmilissenmendoza-art/rifa-marion';
 const VFILE='vendidos.json';
-let sel=new Set(),sold=new Map(),ghToken='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',fileSHA='';
+let sel=new Set(),sold=new Map(),ghToken='',fileSHA='';
 
 async function loadFromGH(){
   try{
