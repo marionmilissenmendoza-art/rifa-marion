@@ -559,8 +559,22 @@ function renderSales(){
   if(!sold.size){l.innerHTML='';e.style.display='block';return}
   e.style.display='none';
   l.innerHTML=[...sold.entries()].sort((a,b)=>a[0]-b[0]).map(([n,d])=>
-    `<div class="sale-card"><strong>Nº ${n}</strong> — ${d.name}<br><span style="color:var(--muted);font-size:.72rem">${d.ref}</span></div>`
+    `<div class="sale-card" style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+      <div>
+        <strong>Nº ${n}</strong> — ${d.name}<br>
+        <span style="color:var(--muted);font-size:.72rem">${d.ref}</span>
+      </div>
+      <button onclick="deleteSale(${n})" style="background:rgba(255,69,58,.15);border:1px solid rgba(255,69,58,.4);color:#ff453a;padding:6px 12px;border-radius:8px;font-family:inherit;font-size:.72rem;font-weight:700;cursor:pointer;flex-shrink:0;transition:all .2s" onmouseover="this.style.background='rgba(255,69,58,.3)'" onmouseout="this.style.background='rgba(255,69,58,.15)'">🗑️ Eliminar</button>
+    </div>`
   ).join('');
+}
+
+async function deleteSale(n){
+  if(!confirm(`¿Eliminar la venta del número ${n}?`))return;
+  sold.delete(parseInt(n));
+  render();
+  const ok=await saveToGH();
+  if(!ok){alert('Error al eliminar, intenta de nuevo');}
 }
 
 // Particles
