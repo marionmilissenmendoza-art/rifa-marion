@@ -403,11 +403,6 @@ let sel=new Set(),sold=new Map(),ghToken='',fileSHA='';
 
 async function loadFromGH(){
   try{
-    const meta=await fetch(`https://api.github.com/repos/${REPO}/contents/${VFILE}?t=${Date.now()}`);
-    if(meta.ok){
-      const d=await meta.json();
-      fileSHA=d.sha;
-    }
     const raw=await fetch(`https://raw.githubusercontent.com/${REPO}/main/${VFILE}?t=${Date.now()}`);
     if(raw.ok){
       const data=await raw.json();
@@ -419,6 +414,12 @@ async function loadFromGH(){
 
 async function saveToGH(){
   if(!ghToken){alert('Falta el token GitHub en el panel admin');return false;}
+  try{
+    const meta=await fetch(`https://api.github.com/repos/${REPO}/contents/${VFILE}?t=${Date.now()}`,{
+      headers:{Authorization:`token ${ghToken}`}
+    });
+    if(meta.ok){const d=await meta.json();fileSHA=d.sha;}
+  }catch(e){}
   const obj={};sold.forEach((v,k)=>obj[k]=v);
   const content=btoa(unescape(encodeURIComponent(JSON.stringify(obj))));
   const body={message:'update vendidos',content,committer:{name:'Admin',email:'admin@rifa.cl'}};
@@ -431,7 +432,7 @@ async function saveToGH(){
   else{const e=await r.json();alert('Error: '+e.message);return false;}
 }
 
-setInterval(loadFromGH,15000);
+setInterval(loadFromGH,30000);
 
 function render(){
   const g=document.getElementById('ngrid');g.innerHTML='';
