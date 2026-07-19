@@ -403,14 +403,17 @@ let sel=new Set(),sold=new Map(),ghToken='',fileSHA='';
 
 async function loadFromGH(){
   try{
-    const r=await fetch(`https://api.github.com/repos/${REPO}/contents/${VFILE}?t=${Date.now()}`);
-    if(r.ok){
-      const d=await r.json();
+    const meta=await fetch(`https://api.github.com/repos/${REPO}/contents/${VFILE}?t=${Date.now()}`);
+    if(meta.ok){
+      const d=await meta.json();
       fileSHA=d.sha;
-      const data=JSON.parse(atob(d.content.replace(/\n/g,'')));
+    }
+    const raw=await fetch(`https://raw.githubusercontent.com/${REPO}/main/${VFILE}?t=${Date.now()}`);
+    if(raw.ok){
+      const data=await raw.json();
       sold=new Map(Object.entries(data).map(([k,v])=>[parseInt(k),v]));
     }
-  }catch(e){}
+  }catch(e){console.error('Error cargando ventas:',e);}
   render();
 }
 
